@@ -62,6 +62,10 @@ def haunt(tMin,tMax):
     timer_start = time.time()
     while running:
         schedule = random.randint(tMin,tMax)
+        if duration > 0:
+            if time.time() - timer_start + schedule >= duration:
+                schedule = duration - (time.time() - timer_start)
+                running = 0
         time.sleep(schedule)
         if hauntMode == 0:
             randomNoise()
