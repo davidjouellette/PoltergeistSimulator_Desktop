@@ -10,6 +10,7 @@ import glob
 import time
 import re
 from subprocess import Popen
+from multiprocessing.dummy import Process
 
 hauntIntervalMin = 0
 hauntIntervalMax = 0
@@ -75,6 +76,13 @@ def haunt(tMin,tMax):
                 randomNoise()
             if coinflip == 2:
                 relayTrigger()
+        if hauntMode == 2:
+            doSound = Process(target = randomNoise)
+            doRelay = Process(target = relayTrigger)
+            doSound.start()
+            doRelay.start()
+            doSound.join()
+            doRelay.join()
         if duration > 0:
             if time.time() - timer_start >= duration:
                 running = 0
