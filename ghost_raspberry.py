@@ -12,6 +12,7 @@ import re
 from subprocess import Popen
 from multiprocessing.dummy import Process
 
+
 hauntIntervalMin = 0
 hauntIntervalMax = 0
 hauntMode = 0
@@ -41,7 +42,14 @@ def configure():
         if "total_duration" in line:
     if playlistMode !=2:
         random.shuffle(sounds)
-        
+# Here we use the Raspberry Pi's onboard omxplayer to deal with any number of
+# media files. Depending on the playlistMode, we either do a random sound,
+# the next sound from a random playlist (to ensure no repeats), or the next
+# sound in the sorted playlist order.
+
+# This should all work over HDMI as well, which may be more convenient for
+# people and even opens up the possibility of video or even projection.
+# Something for future work.
 def randomNoise():
     global sounds
     if playlistMode == 0:
@@ -54,8 +62,13 @@ def randomNoise():
                 random.shuffle(sounds)
         Popen("omxplayer", sounds[playlistIndex])
 
+# Trigger an electrical relay with the pi's GPIO pins. For now we just have one
+# output but we could add more, and even randomize which gets triggered.
 def relayTrigger():
     # code goes here
+
+# Our main function, which schedules the random noises and calls the associated
+# functions. It also checks the execution timer to know when to quit.
 def haunt(tMin,tMax):
     global hauntMode
     global duration
