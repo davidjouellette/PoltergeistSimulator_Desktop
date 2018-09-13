@@ -9,7 +9,7 @@ import random
 import glob
 import time
 import re
-import os
+from subprocess import Popen
 
 hauntIntervalMin = 0
 hauntIntervalMax = 0
@@ -44,14 +44,14 @@ def configure():
 def randomNoise():
     global sounds
     if playlistMode == 0:
-        os.system("omxplayer " + sounds[random.randint(0,len(sounds)-1)])
+        Popen("omxplayer", sounds[random.randint(0,len(sounds)-1)])
     if playlistMode == 1 or playlistMode == 2:
         global playlistIndex
         if playlistIndex == len(sounds):
             playlistIndex = 0
             if playlistMode == 1:
                 random.shuffle(sounds)
-        os.system("omxplayer " + sounds[playlistIndex])
+        Popen("omxplayer", sounds[playlistIndex])
 
 def relayTrigger():
     # code goes here
