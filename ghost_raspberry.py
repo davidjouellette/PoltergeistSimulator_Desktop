@@ -27,7 +27,7 @@ print(len(sounds))
 # maybe add safeguard here so only audio files are added to list
 def configure():
     with open("ghost_config.txt","r") as config:
-        configLines = config.readlines
+        configLines = config.readlines()
     global hauntIntervalMin
     global hauntIntervalMax
     global hauntMode
@@ -73,6 +73,7 @@ def relayTrigger():
 # Our main function, which schedules the random noises and calls the associated
 # functions. It also checks the execution timer to know when to quit.
 def haunt(tMin,tMax):
+    configure()
     global hauntMode
     global duration
     running = 1
