@@ -13,14 +13,16 @@ from subprocess import Popen
 from multiprocessing.dummy import Process
 
 
-hauntIntervalMin = 0
-hauntIntervalMax = 0
+hauntIntervalMin = 3
+hauntIntervalMax = 8
 hauntMode = 0
 playlistMode = 0
 playlistIndex = 0
 duration = 0
 
 sounds = sorted(glob.glob("sound_library/*"))
+print(sounds)
+print(len(sounds))
 
 # maybe add safeguard here so only audio files are added to list
 def configure():
@@ -32,14 +34,15 @@ def configure():
     global playlistLoop
     for line in configLines:
         if "maximum_time" in line:
-            hauntIntervalMax = re.findall(r"\d+",line)[0]
+            hauntIntervalMax = int(re.findall(r"\d+",line)[0])
         if "minimum_time" in line:
-            hauntIntervalMin = re.findall(r"\d+",line)[0]
+            hauntIntervalMin = int(re.findall(r"\d+",line)[0])
         if "activation_mode" in line:
-            hauntMode = re.findall(r"\d+",line)[0]
+            hauntMode = int(re.findall(r"\d+",line)[0])
         if "playlist_Mode" in line:
-            playlistLoop = re.findall(r"\d+",line)[0]
+            playlistLoop = int(re.findall(r"\d+",line)[0])
         if "total_duration" in line:
+            duration = int(re.findall(r"\d+",line)[0])
     if playlistMode !=2:
         random.shuffle(sounds)
 # Here we use the Raspberry Pi's onboard omxplayer to deal with any number of
@@ -53,14 +56,14 @@ def configure():
 def randomNoise():
     global sounds
     if playlistMode == 0:
-        Popen("omxplayer", sounds[random.randint(0,len(sounds)-1)])
+        Popen(["omxplayer", sounds[random.randint(0,len(sounds)-1)]])
     if playlistMode == 1 or playlistMode == 2:
         global playlistIndex
         if playlistIndex == len(sounds):
             playlistIndex = 0
             if playlistMode == 1:
                 random.shuffle(sounds)
-        Popen("omxplayer", sounds[playlistIndex])
+        Popen(["omxplayer", sounds[playlistIndex]])
 
 # Trigger an electrical relay with the pi's GPIO pins. For now we just have one
 # output but we could add more, and even randomize which gets triggered.
@@ -98,7 +101,7 @@ def haunt(tMin,tMax):
             doRelay.join()
         if duration > 0:
             if time.time() - timer_start >= duration:
-                running = 0
-                
-                
-    
+                running = 0                
+print("tMin = " + str(hauntIntervalMin))
+print ("Tmax = " + str(hauntIntervalMax))
+haunt(hauntIntervalMin, hauntIntervalMax)
