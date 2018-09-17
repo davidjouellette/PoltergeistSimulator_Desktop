@@ -1,0 +1,10 @@
+# Use this file to set up specific trigger timings for the GPIO.
+# The format is the on-off timing in seconds, like so:
+# on,off,on,off. These will run in order in case you want to sync
+# them to your sound playlist. So if you want a light to flicker
+# on for .5 seconds and off for .5 seconds, you can put: 
+# .5,.5,.5,.5. The minimum interval is 0.05 seconds.
+
+1,2,3,4
+4,3,2,1
+2,2,2,2    
