@@ -1,0 +1,40 @@
+# Ghost configuration file.
+
+# Set the minimum and maximum times between events (in seconds). The actual time will be randomly chosen within these bounds.
+minimum_time = 10
+maximum_time = 10
+
+
+# Activation mode: sets the main operation of your ghost. 0 = 
+# just play sounds, 1 = sounds or GPIO triggers (for controling
+# external electronics like halloween decorations, lights, etc.)
+# 2 = sounds AND GPIO triggers, 3 = sounds AND GPIO triggers and
+# coordinates them, so the same GPIO trigger pattern is always 
+# played with the same sound, and finally 4 = just GPIO triggers
+activation_mode = 3
+
+# Playlist mode: the sound library is loaded as a playlist.
+# 0 = random sound from the list, 1 = shuffled playlist, 2 = 
+# shuffled playlist but repeats instead of reshuffling at the 
+# end, and 3 = non-random looping playlist that goes in the
+# same order they appear in the folder.
+playlist_mode = 0
+
+# GPIO trigger playlist mode: Just like the sounds, you can set
+# a "playlist" of GPIO activation patterns. You can specify the
+# patterns in the GPIO_playlist.txt file, or just leave the 
+# default pattern. The playlist modes work the same way as
+# they do for the sounds.
+ GPIO_playlist_mode = 0
+
+# Set the duration of the program in seconds. It's fine to
+# just let it run and unplug it when you're done, but if
+# your time intervals are hours long you might forget and get
+# woken up unpleasantly.
+total_duration = 100
+
+# Set the GPIO pin you'll use to trigger. This uses the "board"
+# number, not the GPIO number. Look up Raspberry Pi documentation
+# for more about the difference. Just one pin for now, maybe more
+# in a future version.
+board_out = 16
