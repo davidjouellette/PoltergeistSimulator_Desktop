@@ -42,6 +42,7 @@ def configure():
 # code from https://gist.github.com/juancarlospaco/c295f6965ed056dd08da
 def randomNoise():
     if playlistMode == 0:
+
         sound =  sounds[random.randint(0,len(sounds)-1)]
     else:
         sound =  sounds[soundIndex]
@@ -80,6 +81,7 @@ def haunt(tMin,tMax):
         if duration > 0:
             if time.time() - timer_start >= duration:
                 running = 0
+
 configure()
 print(hauntIntervalMin)
 print(hauntIntervalMax)
