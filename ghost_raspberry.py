@@ -9,17 +9,14 @@ import random
 import glob
 import time
 import re
-from subprocess import Popen
-from multiprocessing.dummy import Process
-
+import sys
+import subprocess
 
 hauntIntervalMin = 0
 hauntIntervalMax = 0
-hauntMode = 0
 playlistMode = 0
-playlistIndex = 0
+soundIndex = 0
 duration = 0
-
 sounds = sorted(glob.glob("sound_library/*"))
 
 # maybe add safeguard here so only audio files are added to list
@@ -28,54 +25,49 @@ def configure():
         configLines = config.readlines()
     global hauntIntervalMin
     global hauntIntervalMax
-    global hauntMode
-    global playlistLoop
+    global playlistMode
     for line in configLines:
         if "maximum_time" in line:
             hauntIntervalMax = int(re.findall(r"\d+",line)[0])
         if "minimum_time" in line:
             hauntIntervalMin = int(re.findall(r"\d+",line)[0])
-        if "activation_mode" in line:
-            hauntMode = int(re.findall(r"\d+",line)[0])
-        if "playlist_Mode" in line:
-            playlistLoop = int(re.findall(r"\d+",line)[0])
+        if "playlist_mode" in line:
+            playlistMode = int(re.findall(r"\d+",line)[0])
         if "total_duration" in line:
             duration = int(re.findall(r"\d+",line)[0])
-    if playlistMode !=2:
+    if playlistMode < 3:
         random.shuffle(sounds)
-# Here we use the Raspberry Pi's onboard omxplayer to deal with any number of
-# media files. Depending on the playlistMode, we either do a random sound,
-# the next sound from a random playlist (to ensure no repeats), or the next
-# sound in the sorted playlist order.
 
-# This should all work over HDMI as well, which may be more convenient for
-# people and even opens up the possibility of video or even projection.
-# Something for future work.
+# Play random noise using whatever native audio player your system comes with. Uses
+# code from https://gist.github.com/juancarlospaco/c295f6965ed056dd08da
 def randomNoise():
-    global sounds
     if playlistMode == 0:
-        Popen(["omxplayer", sounds[random.randint(0,len(sounds)-1)]])
-    if playlistMode == 1 or playlistMode == 2:
-        global playlistIndex
-        if playlistIndex == len(sounds):
-            playlistIndex = 0
-            if playlistMode == 1:
-                random.shuffle(sounds)
-        Popen(["omxplayer", sounds[playlistIndex]])
 
-# Trigger an electrical relay with the pi's GPIO pins. For now we just have one
-# output but we could add more, and even randomize which gets triggered.
-def relayTrigger():
-    # code goes here
+        sound =  sounds[random.randint(0,len(sounds)-1)]
+    else:
+        sound =  sounds[soundIndex]
+
+    if sys.platform.startswith("linux"):
+        return subprocess.call("chrt -i 0 aplay " + sound)
+    if sys.platform.startswith("darwin"):
+        return subprocess.call("afplay " + sound)
+    if sys.platform.startswith("win"):  
+        return subprocess.call("start /low /min " + sound)
+
+def checkPlaylist():
+    if soundIndex == len(sounds):
+        global soundIndex
+        soundIndex = 0
+        if playlistMode == 1:
+            random.shuffle(sounds)
 
 # Our main function, which schedules the random noises and calls the associated
 # functions. It also checks the execution timer to know when to quit.
 def haunt(tMin,tMax):
-    configure()
-    global hauntMode
-    global duration
     running = 1
     timer_start = time.time()
+    global soundIndex
+    global relayIndex
     while running:
         schedule = random.randint(tMin,tMax)
         if duration > 0:
@@ -83,22 +75,14 @@ def haunt(tMin,tMax):
                 schedule = duration - (time.time() - timer_start)
                 running = 0
         time.sleep(schedule)
-        if hauntMode == 0:
-            randomNoise()
-        if hauntMode == 1:
-            coinflip = random.randint(1,2)
-            if coinflip == 1:
-                randomNoise()
-            if coinflip == 2:
-                relayTrigger()
-        if hauntMode == 2:
-            doSound = Process(target = randomNoise)
-            doRelay = Process(target = relayTrigger)
-            doSound.start()
-            doRelay.start()
-            doSound.join()
-            doRelay.join()
+        randomNoise()
+        soundIndex += 1
+        checkPlaylist()
         if duration > 0:
             if time.time() - timer_start >= duration:
                 running = 0
+
+configure()
+print(hauntIntervalMin)
+print(hauntIntervalMax)
 haunt(hauntIntervalMin,hauntIntervalMax)
