@@ -53,7 +53,7 @@ def randomNoise():
         return subprocess.call("afplay " + sound)
     if sys.platform.startswith("win"):  
         return subprocess.call("powershell -c (New-Object Media.SoundPlayer \"" + 
-                               sound + \"".PlaySync();")
+                               sound + "\".PlaySync();")
 
 def checkPlaylist():
     if soundIndex == len(sounds):
